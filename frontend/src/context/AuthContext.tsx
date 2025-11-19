@@ -42,7 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const t =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (t) setToken(t);
+    if (t) {
+      setToken(t);
+      // Set auth header for middleware
+      if (typeof window !== "undefined") {
+        document.cookie = `token=${t}; path=/`;
+      }
+    }
   }, []);
 
   // Fetch user if token present
@@ -77,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     localStorage.setItem("token", res.token);
+    document.cookie = `token=${res.token}; path=/`;
     setToken(res.token);
     await new Promise((r) => setTimeout(r, 0)); // next tick triggers me fetch
   }
@@ -99,11 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify(payload),
     });
     localStorage.setItem("token", res.token);
+    document.cookie = `token=${res.token}; path=/`;
     setToken(res.token);
   }
 
   function logout() {
     localStorage.removeItem("token");
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     setToken(null);
     setUser(null);
   }

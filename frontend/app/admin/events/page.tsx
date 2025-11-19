@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "../../../src/context/AuthContext";
 import { api } from "../../../src/lib/api";
 import AddEventForm from "../../../src/components/admin/AddEventForm";
@@ -20,20 +19,9 @@ type EventItem = {
 };
 
 export default function ManageEventsPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
-
-  // Guard non-admins
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace("/");
-    } else if (user.role !== "admin") {
-      router.replace("/");
-    }
-  }, [user, loading, router]);
 
   // Load events
   async function loadEvents() {

@@ -150,9 +150,7 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
             disabled={loading || !amount || parseFloat(amount) <= 0}
             className="w-full rounded-lg bg-[#CAB27A] px-4 py-3 text-sm font-medium text-white hover:bg-[#B69E65] disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
-            {loading
-              ? "Creating Payment..."
-              : `Proceed to Pay ฿${amount || "0"}`}
+            {loading ? "Creating Payment..." : `Proceed to Pay `}
           </button>
         </form>
 
