@@ -92,91 +92,120 @@ export default function AddEventForm({
   return (
     <form
       onSubmit={submit}
-      className="grid gap-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm md:grid-cols-2"
+      className="grid gap-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:grid-cols-2"
     >
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm text-zinc-700">
-            Event Image
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={onFile}
-            className="block w-full text-sm"
-          />
-          {image && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={image}
-              alt="preview"
-              className="mt-3 h-40 w-full rounded-lg object-cover"
+          <label className="mb-3 block text-sm font-medium">Event Image</label>
+          <div className="relative">
+            {image ? (
+              <div className="group relative overflow-hidden rounded-xl border-2 border-dashed border-zinc-400">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={image}
+                  alt="Event preview"
+                  className="h-120 w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex h-full items-center justify-center">
+                    <label
+                      htmlFor="image-upload"
+                      className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-zinc-50"
+                    >
+                      Change Image
+                    </label>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <label
+                htmlFor="image-upload"
+                className="flex h-120 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <svg
+                    className="h-10 w-10 text-zinc-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium text-zinc-600">
+                    Upload Event Image
+                  </span>
+                </div>
+              </label>
+            )}
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={onFile}
+              className="hidden"
             />
-          )}
+          </div>
         </div>
       </div>
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm text-zinc-700">Event Name</label>
+          <label className="mb-1 block text-sm">Event Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-zinc-700">
-            Where (Venue)
-          </label>
+          <label className="mb-1 block text-sm">Where (Venue)</label>
           <input
             value={venue}
             onChange={(e) => setVenue(e.target.value)}
             required
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-sm text-zinc-700">Date</label>
+            <label className="mb-1 block text-sm">Date</label>
             <input
               type="date"
               min={minDate}
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
               required
-              className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-zinc-700">
-              Total Tickets
-            </label>
+            <label className="mb-1 block text-sm">Total Tickets</label>
             <input
               type="number"
               min={0}
               value={availableTicket}
               onChange={(e) => setAvailableTicket(Number(e.target.value))}
               required
-              className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-sm text-zinc-700">
-              Organizer
-            </label>
+            <label className="mb-1 block text-sm">Organizer</label>
             <input
               value={organizer}
               onChange={(e) => setOrganizer(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-zinc-700">
-              Price of booking
-            </label>
+            <label className="mb-1 block text-sm">Price of booking</label>
             <input
               type="number"
               min={0}
@@ -184,19 +213,17 @@ export default function AddEventForm({
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="e.g. 49.00"
-              className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
             />
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm text-zinc-700">
-            Event Description
-          </label>
+          <label className="mb-1 block text-sm">Event Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-[#E9DCC9]/20 px-3 py-2 outline-none"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -204,7 +231,7 @@ export default function AddEventForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-yellow-700/80 px-5 py-2 font-semibold text-white hover:bg-yellow-700 disabled:opacity-60"
+          className="rounded-lg bg-[#CAB27A] px-5 py-2 font-semibold text-white hover:bg-[#B69E65] disabled:opacity-60"
         >
           {submitting ? "Creating…" : "Create Event"}
         </button>
