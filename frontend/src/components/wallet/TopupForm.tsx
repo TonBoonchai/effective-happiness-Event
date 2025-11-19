@@ -101,7 +101,7 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
             </button>
           </div>
 
-          <div className="mb-6 rounded-lg bg-yellow-50 p-4">
+          <div className="mb-6 rounded-lg bg-[#E9DCC9] p-4">
             <p className="text-sm font-medium text-zinc-800">
               Amount: ฿{amount}
             </p>
@@ -125,22 +125,6 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
       </h2>
 
       <div className="space-y-6">
-        {/* Preset Amount Buttons */}
-        <div>
-          <p className="mb-3 text-sm text-zinc-600">Quick amounts:</p>
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-5">
-            {presetAmounts.map((preset) => (
-              <button
-                key={preset}
-                onClick={() => setAmount(preset.toString())}
-                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-              >
-                ฿{preset}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Custom Amount Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -154,7 +138,7 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount..."
-              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:border-[#CAB27A] focus:outline-none focus:ring-1 focus:ring-[#CAB27A]"
               required
             />
           </div>
@@ -164,7 +148,7 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
           <button
             type="submit"
             disabled={loading || !amount || parseFloat(amount) <= 0}
-            className="w-full rounded-lg bg-yellow-500 px-4 py-3 text-sm font-medium text-white hover:bg-yellow-600 disabled:cursor-not-allowed disabled:bg-zinc-400"
+            className="w-full rounded-lg bg-[#CAB27A] px-4 py-3 text-sm font-medium text-white hover:bg-[#B69E65] disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
             {loading
               ? "Creating Payment..."
@@ -174,14 +158,25 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
 
         {/* Payment Methods Info */}
         <div className="border-t border-zinc-100 pt-4">
-          <p className="mb-2 text-sm font-medium text-zinc-700">
+          <p className="mb-3 text-sm font-medium text-zinc-700">
             Supported Payment Methods:
           </p>
-          <div className="flex items-center gap-4 text-sm text-zinc-600">
-            <span className="flex items-center gap-1">
-              💳 Credit/Debit Card
-            </span>
-            <span className="flex items-center gap-1">📱 PromptPay</span>
+          <div className="flex items-center gap-3">
+            <img
+              src="/img/topup/visa.png"
+              alt="Visa"
+              className="h-8 w-auto object-contain rounded-lg"
+            />
+            <img
+              src="/img/topup/mastercard.png"
+              alt="Mastercard"
+              className="h-8 w-auto object-contain rounded-lg"
+            />
+            <img
+              src="/img/topup/promptpay.jpg"
+              alt="PromptPay"
+              className="h-8 w-auto object-contain rounded-lg"
+            />
           </div>
         </div>
       </div>

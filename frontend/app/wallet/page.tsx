@@ -18,8 +18,8 @@ export default function WalletPage() {
       <section className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Wallet</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold  mb-2">My Wallet</h1>
+          <p className="text-[#797979]">
             Manage your balance and view transaction history
           </p>
         </div>

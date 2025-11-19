@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import TurnedInIcon from "@mui/icons-material/TurnedIn";
+import HistoryIcon from "@mui/icons-material/History";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 type WalletData = {
   _id: string;
@@ -54,13 +58,13 @@ export default function WalletOverview() {
   function getTransactionIcon(type: string) {
     switch (type) {
       case "topup":
-        return "💳";
+        return <CreditScoreIcon className="w-5 h-5" />;
       case "booking":
-        return "🎫";
+        return <TurnedInIcon className="w-5 h-5" />;
       case "refund":
-        return "↩️";
+        return <HistoryIcon className="w-5 h-5" />;
       case "admin_earning":
-        return "💰";
+        return <AttachMoneyIcon className="w-5 h-5" />;
       default:
         return "📝";
     }
@@ -108,10 +112,10 @@ export default function WalletOverview() {
   return (
     <div className="space-y-8">
       {/* Balance Card */}
-      <div className="rounded-2xl border border-zinc-200 bg-gradient-to-r from-yellow-50 to-amber-50 p-8">
+      <div className="rounded-xl p-5 border border-zinc-200 bg-white">
         <div className="text-center">
           <p className="text-sm text-zinc-600 mb-2">Wallet Balance</p>
-          <p className="text-4xl font-bold text-zinc-800">
+          <p className="text-4xl font-bold">
             ฿
             {wallet?.balance?.toLocaleString("en-US", {
               minimumFractionDigits: 2,
