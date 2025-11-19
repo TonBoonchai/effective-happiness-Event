@@ -33,6 +33,7 @@ exports.createTicketing = async (req, res) => {
 
 // Get ticketing requests (admin: all requests, member: own requests)
 exports.getTicketings = async (req, res) => {
+  console.log("=== getTicketings called ===");
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -47,6 +48,13 @@ exports.getTicketings = async (req, res) => {
     const ticketings = await Ticketing.find(query)
       .populate(populate)
       .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Debug logging
+    console.log("Debug ticketings data:");
+    if (ticketings.length > 0) {
+      console.log("First ticket event:", ticketings[0].event);
+      console.log("First ticket event price:", ticketings[0].event?.price);
+    }
 
     res.status(200).json({
       success: true,
@@ -63,6 +71,7 @@ exports.getTicketings = async (req, res) => {
             venue: ticket.event.venue,
             availableTicket: ticket.event.availableTicket,
             posterPicture: ticket.event.posterPicture,
+            price: ticket.event.price,
           },
         })),
     });

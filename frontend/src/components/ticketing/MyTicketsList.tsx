@@ -16,6 +16,7 @@ type TicketingRecord = {
     availableTicket?: number;
     posterPicture?: string | null;
     eventDate?: string;
+    price?: number;
   };
 };
 
@@ -42,6 +43,7 @@ export default function MyTicketsList() {
           count: number;
         }>("/ticketing");
         if (!ignore) {
+          console.log("Ticketing data loaded:", res.data);
           setItems(res.data || []);
         }
       } catch (e: any) {
@@ -64,17 +66,89 @@ export default function MyTicketsList() {
   }
 
   async function saveEdit(id: string) {
+    const currentRecord = items.find((item) => item._id === id);
+    if (!currentRecord) {
+      setError("Ticket record not found");
+      return;
+    }
+
+    const oldQty = currentRecord.ticketAmount;
+    const newQty = editQty;
+    const qtyDifference = newQty - oldQty;
+    const eventPrice = currentRecord.event.price || 0;
+    const priceDifference = qtyDifference * eventPrice;
+
+    // Debug logging
+    console.log("Debug saveEdit:", {
+      oldQty,
+      newQty,
+      qtyDifference,
+      eventPrice,
+      priceDifference,
+    });
+
     setUpdating(true);
     setError(null);
+
     try {
+      // Handle wallet adjustment first if there's a price difference
+      if (priceDifference !== 0) {
+        if (priceDifference > 0) {
+          // User increased tickets - deduct money from wallet first
+          await api("/wallet/pay", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: priceDifference,
+              eventId: currentRecord.event._id,
+              ticketingId: id,
+              description: `Additional ${qtyDifference} ticket${
+                qtyDifference > 1 ? "s" : ""
+              } for ${currentRecord.event.name}`,
+            }),
+          });
+        } else {
+          // User decreased tickets - process refund first
+          await api("/wallet/refund", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: Math.abs(priceDifference),
+              userId: user?._id,
+              eventId: currentRecord.event._id,
+              ticketingId: id,
+              description: `Refund for ${Math.abs(qtyDifference)} ticket${
+                Math.abs(qtyDifference) > 1 ? "s" : ""
+              } from ${currentRecord.event.name}`,
+            }),
+          });
+        }
+      }
+
+      // Only update the ticket quantity if payment/refund was successful
       await api(`/ticketing/${id}`, {
         method: "PUT",
         body: JSON.stringify({ ticketAmount: editQty }),
       });
+
+      // Update local state
       setItems((prev) =>
         prev.map((r) => (r._id === id ? { ...r, ticketAmount: editQty } : r))
       );
       setEditingId(null);
+
+      // Show success message with wallet info
+      if (priceDifference > 0) {
+        alert(
+          `Ticket quantity updated! ฿${priceDifference.toLocaleString()} deducted from your wallet.`
+        );
+      } else if (priceDifference < 0) {
+        alert(
+          `Ticket quantity updated! ฿${Math.abs(
+            priceDifference
+          ).toLocaleString()} refunded to your wallet.`
+        );
+      } else {
+        alert("Ticket quantity updated!");
+      }
     } catch (e: any) {
       setError(e?.message || "Update failed");
     } finally {
@@ -83,12 +157,58 @@ export default function MyTicketsList() {
   }
 
   async function deleteItem(id: string) {
-    if (!confirm("Delete this booking?")) return;
+    const recordToDelete = items.find((item) => item._id === id);
+    if (!recordToDelete) {
+      setError("Ticket record not found");
+      return;
+    }
+
+    const refundAmount =
+      (recordToDelete.event.price || 0) * recordToDelete.ticketAmount;
+
+    if (
+      !confirm(
+        `Delete this booking?${
+          refundAmount > 0
+            ? ` You will receive a refund of ฿${refundAmount.toLocaleString()}.`
+            : ""
+        }`
+      )
+    ) {
+      return;
+    }
+
     setDeletingId(id);
     setError(null);
     try {
+      // Delete the ticket
       await api(`/ticketing/${id}`, { method: "DELETE" });
+
+      // Process refund if there's a price
+      if (refundAmount > 0) {
+        await api("/wallet/refund", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: refundAmount,
+            userId: user?._id,
+            eventId: recordToDelete.event._id,
+            ticketingId: id,
+            description: `Full refund for cancelled booking: ${recordToDelete.event.name}`,
+          }),
+        });
+      }
+
+      // Update local state
       setItems((prev) => prev.filter((r) => r._id !== id));
+
+      // Show success message
+      if (refundAmount > 0) {
+        alert(
+          `Booking cancelled! ฿${refundAmount.toLocaleString()} has been refunded to your wallet.`
+        );
+      } else {
+        alert("Booking cancelled!");
+      }
     } catch (e: any) {
       setError(e?.message || "Delete failed");
     } finally {
@@ -199,7 +319,7 @@ export default function MyTicketsList() {
                     </svg>
                   </span>
                   {editing ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <input
                         type="number"
                         min={1}
@@ -212,27 +332,65 @@ export default function MyTicketsList() {
                         }
                         className="w-20 rounded border border-zinc-300 bg-zinc-50 px-2 py-1 text-xs"
                       />
-                      <button
-                        disabled={updating}
-                        onClick={() => saveEdit(rec._id)}
-                        className="rounded bg-yellow-700/80 px-2 py-1 text-xs font-semibold text-white hover:bg-yellow-700 disabled:opacity-60"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        disabled={updating}
-                        onClick={cancelEdit}
-                        className="rounded px-2 py-1 text-xs font-semibold text-zinc-600 hover:underline"
-                      >
-                        Cancel
-                      </button>
+                      {rec.event.price && (
+                        <span className="text-xs text-zinc-500">
+                          @ ฿{rec.event.price.toLocaleString()}/ticket
+                          {editQty !== rec.ticketAmount && (
+                            <span
+                              className={`ml-1 font-semibold ${
+                                (editQty - rec.ticketAmount) * rec.event.price >
+                                0
+                                  ? "text-red-600"
+                                  : "text-green-600"
+                              }`}
+                            >
+                              (
+                              {(editQty - rec.ticketAmount) * rec.event.price >
+                              0
+                                ? "-"
+                                : "+"}
+                              ฿
+                              {Math.abs(
+                                (editQty - rec.ticketAmount) * rec.event.price
+                              ).toLocaleString()}
+                              )
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      <div className="flex gap-1">
+                        <button
+                          disabled={updating}
+                          onClick={() => saveEdit(rec._id)}
+                          className="rounded bg-yellow-700/80 px-2 py-1 text-xs font-semibold text-white hover:bg-yellow-700 disabled:opacity-60"
+                        >
+                          {updating ? "..." : "Save"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updating}
+                          onClick={cancelEdit}
+                          className="rounded px-2 py-1 text-xs font-semibold text-zinc-600 hover:underline"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <span>
-                      {rec.ticketAmount}{" "}
-                      {rec.ticketAmount === 1 ? "ticket" : "tickets"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {rec.ticketAmount}{" "}
+                        {rec.ticketAmount === 1 ? "ticket" : "tickets"}
+                      </span>
+                      {rec.event.price && (
+                        <span className="text-zinc-500">
+                          • Total: ฿
+                          {(
+                            rec.event.price * rec.ticketAmount
+                          ).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

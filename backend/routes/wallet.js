@@ -166,7 +166,7 @@ router.post("/pay", protect, walletController.processBookingPayment);
 router.post(
   "/refund",
   protect,
-  authorize("admin"),
+  authorize("admin", "member"),
   walletController.processRefund
 );
 

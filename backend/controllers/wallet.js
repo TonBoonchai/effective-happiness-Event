@@ -235,6 +235,14 @@ exports.processRefund = async (req, res, next) => {
       });
     }
 
+    // Security check: Members can only refund to themselves
+    if (req.user.role === "member" && userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only process refunds for your own tickets",
+      });
+    }
+
     // Deduct from all admin wallets equally
     const admins = await User.find({ role: "admin" });
     const amountPerAdmin = amount / admins.length;
