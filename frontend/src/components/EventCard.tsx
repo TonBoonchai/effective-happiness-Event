@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export type EventItem = {
   _id: string;
@@ -8,15 +9,19 @@ export type EventItem = {
 };
 
 export default function EventCard({ event }: { event: EventItem }) {
+  const href = `/events/${event._id}`;
   return (
-    <div className="flex flex-col rounded-xl border border-zinc-200 bg-white p-3 shadow-sm transition hover:shadow-md">
+    <Link
+      href={href}
+      className="group flex flex-col rounded-xl border border-zinc-200 bg-white p-3 shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600/40"
+    >
       <div className="relative mb-3 h-44 w-full overflow-hidden rounded-lg bg-zinc-200">
         {event.posterPicture ? (
           <Image
             src={event.posterPicture}
             alt={event.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, 25vw"
           />
         ) : (
@@ -26,7 +31,7 @@ export default function EventCard({ event }: { event: EventItem }) {
         )}
       </div>
       <div className="flex flex-1 flex-col">
-        <h3 className="line-clamp-2 text-sm font-semibold text-zinc-900">
+        <h3 className="line-clamp-2 text-sm font-semibold text-zinc-900 group-hover:underline">
           {event.name}
         </h3>
         <div className="mt-1 flex items-center gap-1 text-xs text-zinc-600">
@@ -47,14 +52,11 @@ export default function EventCard({ event }: { event: EventItem }) {
           <span className="truncate">{event.venue}</span>
         </div>
         <div className="mt-3">
-          <button
-            type="button"
-            className="rounded-full bg-yellow-700/80 px-4 py-1.5 text-xs font-semibold text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-600/40"
-          >
-            Buy now
-          </button>
+          <span className="inline-block rounded-full bg-yellow-700/80 px-4 py-1.5 text-xs font-semibold text-white group-hover:bg-yellow-700">
+            View details
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

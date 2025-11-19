@@ -1,5 +1,5 @@
-const Event = require('../models/Event');
-const dayjs = require('dayjs');
+const Event = require("../models/Event");
+const dayjs = require("dayjs");
 
 // @desc    Get all events
 // @route   GET /api/v1/events
@@ -9,7 +9,7 @@ exports.getEvents = async (req, res) => {
   res.json({
     success: true,
     count: events.length,
-    data: events
+    data: events,
   });
 };
 
@@ -22,23 +22,23 @@ exports.getEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: "Event not found",
       });
     }
     res.json({
       success: true,
-      data: event
+      data: event,
     });
   } catch (error) {
-    if (error.kind === 'ObjectId') {
+    if (error.kind === "ObjectId") {
       return res.status(404).json({
         success: false,
-        message: 'Event not found - Invalid ID'
+        message: "Event not found - Invalid ID",
       });
     }
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
@@ -47,14 +47,32 @@ exports.getEvent = async (req, res) => {
 // @route   POST /api/v1/events
 // @access  Admin
 exports.createEvent = async (req, res) => {
-  const { name, description, eventDate, venue, organizer, availableTicket, posterPicture } = req.body;
-  if (dayjs(eventDate).isBefore(dayjs(), 'day')) {
-    return res.status(400).json({ success: false, message: 'Event date cannot be in the past' });
+  const {
+    name,
+    description,
+    eventDate,
+    venue,
+    organizer,
+    availableTicket,
+    posterPicture,
+  } = req.body;
+  if (dayjs(eventDate).isBefore(dayjs(), "day")) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Event date cannot be in the past" });
   }
-  const event = await Event.create({ name, description, eventDate, venue, organizer, availableTicket, posterPicture });
+  const event = await Event.create({
+    name,
+    description,
+    eventDate,
+    venue,
+    organizer,
+    availableTicket,
+    posterPicture,
+  });
   res.status(201).json({
     success: true,
-    data: event
+    data: event,
   });
 };
 
@@ -63,11 +81,16 @@ exports.createEvent = async (req, res) => {
 // @access  Admin
 exports.updateEvent = async (req, res) => {
   const { eventDate } = req.body;
-  if (eventDate && dayjs(eventDate).isBefore(dayjs(), 'day')) {
-    return res.status(400).json({ message: 'Event date cannot be in the past' });
+  if (eventDate && dayjs(eventDate).isBefore(dayjs(), "day")) {
+    return res
+      .status(400)
+      .json({ message: "Event date cannot be in the past" });
   }
-  const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-  if (!event) return res.status(404).json({ message: 'Event not found' });
+  const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!event) return res.status(404).json({ message: "Event not found" });
   res.json(event);
 };
 
@@ -76,6 +99,6 @@ exports.updateEvent = async (req, res) => {
 // @access  Admin
 exports.deleteEvent = async (req, res) => {
   const event = await Event.findByIdAndDelete(req.params.id);
-  if (!event) return res.status(404).json({ message: 'Event not found' });
-  res.json({ message: 'Event deleted' });
+  if (!event) return res.status(404).json({ message: "Event not found" });
+  res.json({ message: "Event deleted" });
 };
