@@ -21,6 +21,7 @@ type AdminTicketingRecord = {
     availableTicket?: number;
     posterPicture?: string | null;
     eventDate?: string;
+    price?: number;
   };
   createdAt: string;
 };
@@ -89,12 +90,59 @@ export default function AdminTicketsList() {
   }
 
   async function deleteItem(id: string) {
-    if (!confirm("Delete this booking?")) return;
+    const recordToDelete = items.find((item) => item._id === id);
+    if (!recordToDelete) {
+      setError("Ticket record not found");
+      return;
+    }
+
+    const refundAmount =
+      (recordToDelete.event.price || 0) * recordToDelete.ticketAmount;
+
+    if (
+      !confirm(
+        `Delete this booking?${
+          refundAmount > 0
+            ? ` The user will receive a refund of ฿${refundAmount.toLocaleString()}.`
+            : ""
+        }`
+      )
+    ) {
+      return;
+    }
+
     setDeletingId(id);
     setError(null);
     try {
+      // Delete the ticket
       await api(`/ticketing/${id}`, { method: "DELETE" });
+
+      // Process refund if there's a price
+      if (refundAmount > 0) {
+        await api("/wallet/refund", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: refundAmount,
+            userId: recordToDelete.user._id,
+            eventId: recordToDelete.event._id,
+            ticketingId: id,
+            description: `Admin cancellation refund for: ${recordToDelete.event.name}`,
+          }),
+        });
+      }
+
       setItems((prev) => prev.filter((r) => r._id !== id));
+
+      // Show success message
+      if (refundAmount > 0) {
+        alert(
+          `Booking deleted! ฿${refundAmount.toLocaleString()} has been refunded to ${
+            recordToDelete.user.name
+          }.`
+        );
+      } else {
+        alert("Booking deleted!");
+      }
     } catch (e: any) {
       setError(e?.message || "Delete failed");
     } finally {
