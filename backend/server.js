@@ -32,11 +32,18 @@ app.use(hpp());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs:
+    process.env.NODE_ENV === "development" ? 1 * 60 * 1000 : 10 * 60 * 1000, // 1 min in dev, 10 min in prod
+  max: process.env.NODE_ENV === "development" ? 1000 : 100, // 1000 requests in dev, 100 in prod
   message: {
     success: false,
     error: "Too many requests from this IP, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req, res) => {
+    // Skip rate limiting for preflight OPTIONS requests in development
+    return process.env.NODE_ENV === "development" && req.method === "OPTIONS";
   },
 });
 app.use(limiter);
@@ -161,23 +168,29 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(
-  PORT,
-  console.log(
-    `EventTicketer API Server running in ${
-      process.env.NODE_ENV || "development"
-    } mode on http://localhost:${PORT}`
-  )
-);
+// For Vercel deployment, export the app
+if (process.env.NODE_ENV === "production") {
+  module.exports = app;
+} else {
+  // For local development, start the server
+  const server = app.listen(
+    PORT,
+    console.log(
+      `EventTicketer API Server running in ${
+        process.env.NODE_ENV || "development"
+      } mode on http://localhost:${PORT}`
+    )
+  );
 
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  server.close(() => process.exit(1));
-});
+  // Handle unhandled promise rejections
+  process.on("unhandledRejection", (err, promise) => {
+    console.log(`Error: ${err.message}`);
+    server.close(() => process.exit(1));
+  });
 
-// Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  console.log(`Error: ${err.message}`);
-  process.exit(1);
-});
+  // Handle uncaught exceptions
+  process.on("uncaughtException", (err) => {
+    console.log(`Error: ${err.message}`);
+    process.exit(1);
+  });
+}

@@ -106,13 +106,17 @@ export default function WalletOverview() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Balance Card */}
-      <div className="rounded-2xl border border-zinc-200 bg-gradient-to-r from-yellow-50 to-amber-50 p-6">
+      <div className="rounded-2xl border border-zinc-200 bg-gradient-to-r from-yellow-50 to-amber-50 p-8">
         <div className="text-center">
-          <p className="text-sm text-zinc-600">Wallet Balance</p>
-          <p className="text-3xl font-bold text-zinc-800">
-            ฿{wallet?.balance?.toFixed(2) || "0.00"}
+          <p className="text-sm text-zinc-600 mb-2">Wallet Balance</p>
+          <p className="text-4xl font-bold text-zinc-800">
+            ฿
+            {wallet?.balance?.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) || "0.00"}
           </p>
         </div>
       </div>

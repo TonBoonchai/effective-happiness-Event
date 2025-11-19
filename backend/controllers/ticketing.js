@@ -1,5 +1,5 @@
-const Ticketing = require('../models/Ticketing');
-const Event = require('../models/Event');
+const Ticketing = require("../models/Ticketing");
+const Event = require("../models/Event");
 
 // Helper: Check if user has already requested 5 tickets for an event
 async function userTicketCount(userId, eventId) {
@@ -11,15 +11,21 @@ async function userTicketCount(userId, eventId) {
 exports.createTicketing = async (req, res) => {
   const { event, ticketAmount } = req.body;
   const eventObj = await Event.findById(event);
-  if (!eventObj) return res.status(404).json({ message: 'Event not found' });
+  if (!eventObj) return res.status(404).json({ message: "Event not found" });
   const currentCount = await userTicketCount(req.user.id, event);
   if (currentCount + ticketAmount > 5) {
-    return res.status(400).json({ message: 'Cannot request more than 5 tickets per event' });
+    return res
+      .status(400)
+      .json({ message: "Cannot request more than 5 tickets per event" });
   }
   if (ticketAmount > eventObj.availableTicket) {
-    return res.status(400).json({ message: 'Not enough tickets available' });
+    return res.status(400).json({ message: "Not enough tickets available" });
   }
-  const ticketing = await Ticketing.create({ user: req.user.id, event, ticketAmount });
+  const ticketing = await Ticketing.create({
+    user: req.user.id,
+    event,
+    ticketAmount,
+  });
   eventObj.availableTicket -= ticketAmount;
   await eventObj.save();
   res.status(201).json(ticketing);
@@ -28,33 +34,44 @@ exports.createTicketing = async (req, res) => {
 // Get ticketing requests (admin: all requests, member: own requests)
 exports.getTicketings = async (req, res) => {
   try {
-    let query = req.user.role === 'admin' ? {} : { user: req.user.id };
-    let populate = req.user.role === 'admin' ? ['user', 'event'] : ['event'];
-    
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    let query = req.user.role === "admin" ? {} : { user: req.user.id };
+    let populate = req.user.role === "admin" ? ["user", "event"] : ["event"];
+
     const ticketings = await Ticketing.find(query)
       .populate(populate)
       .sort({ createdAt: -1 }); // Sort by newest first
-    
+
     res.status(200).json({
       success: true,
       count: ticketings.length,
-      data: ticketings.map(ticket => ({
-        ...ticket.toObject(),
-        event: {
-          _id: ticket.event._id,
-          name: ticket.event.name,
-          description: ticket.event.description,
-          eventDate: ticket.event.eventDate,
-          venue: ticket.event.venue,
-          availableTicket: ticket.event.availableTicket
-        }
-      }))
+      data: ticketings
+        .filter((ticket) => ticket.event && ticket.event._id) // Filter out tickets with null/deleted events
+        .map((ticket) => ({
+          ...ticket.toObject(),
+          event: {
+            _id: ticket.event._id,
+            name: ticket.event.name,
+            description: ticket.event.description,
+            eventDate: ticket.event.eventDate,
+            venue: ticket.event.venue,
+            availableTicket: ticket.event.availableTicket,
+            posterPicture: ticket.event.posterPicture,
+          },
+        })),
     });
   } catch (error) {
+    console.error("getTicketings error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Server Error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -63,18 +80,18 @@ exports.getTicketings = async (req, res) => {
 exports.getTicketing = async (req, res) => {
   try {
     let query = { _id: req.params.id };
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       query.user = req.user.id;
     }
 
-    let populate = req.user.role === 'admin' ? ['user', 'event'] : ['event'];
-    
+    let populate = req.user.role === "admin" ? ["user", "event"] : ["event"];
+
     const ticketing = await Ticketing.findOne(query).populate(populate);
 
     if (!ticketing) {
       return res.status(404).json({
         success: false,
-        message: 'Ticketing request not found'
+        message: "Ticketing request not found",
       });
     }
 
@@ -88,15 +105,16 @@ exports.getTicketing = async (req, res) => {
           description: ticketing.event.description,
           eventDate: ticketing.event.eventDate,
           venue: ticketing.event.venue,
-          availableTicket: ticketing.event.availableTicket
-        }
-      }
+          availableTicket: ticketing.event.availableTicket,
+          posterPicture: ticketing.event.posterPicture,
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Server Error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -105,7 +123,7 @@ exports.getTicketing = async (req, res) => {
 exports.updateTicketing = async (req, res) => {
   try {
     let query = { _id: req.params.id };
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       query.user = req.user.id;
     }
 
@@ -113,24 +131,24 @@ exports.updateTicketing = async (req, res) => {
     if (!ticketing) {
       return res.status(404).json({
         success: false,
-        message: 'Ticketing request not found'
+        message: "Ticketing request not found",
       });
     }
 
     const eventObj = await Event.findById(ticketing.event);
     // Restore previous tickets
     eventObj.availableTicket += ticketing.ticketAmount;
-    
+
     // Check new ticket amount
     const { ticketAmount } = req.body;
 
     // Check ticket limit for members
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       const currentCount = await userTicketCount(req.user.id, ticketing.event);
       if (currentCount - ticketing.ticketAmount + ticketAmount > 5) {
         return res.status(400).json({
           success: false,
-          message: 'Cannot request more than 5 tickets per event'
+          message: "Cannot request more than 5 tickets per event",
         });
       }
     }
@@ -138,25 +156,25 @@ exports.updateTicketing = async (req, res) => {
     if (ticketAmount > eventObj.availableTicket) {
       return res.status(400).json({
         success: false,
-        message: 'Not enough tickets available'
+        message: "Not enough tickets available",
       });
     }
 
     ticketing.ticketAmount = ticketAmount;
     await ticketing.save();
-    
+
     eventObj.availableTicket -= ticketAmount;
     await eventObj.save();
 
     res.json({
       success: true,
-      data: ticketing
+      data: ticketing,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Server Error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -165,7 +183,7 @@ exports.updateTicketing = async (req, res) => {
 exports.deleteTicketing = async (req, res) => {
   try {
     let query = { _id: req.params.id };
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       query.user = req.user.id;
     }
 
@@ -173,7 +191,7 @@ exports.deleteTicketing = async (req, res) => {
     if (!ticketing) {
       return res.status(404).json({
         success: false,
-        message: 'Ticketing request not found'
+        message: "Ticketing request not found",
       });
     }
 
@@ -185,13 +203,13 @@ exports.deleteTicketing = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Ticketing request deleted successfully'
+      message: "Ticketing request deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Server Error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };

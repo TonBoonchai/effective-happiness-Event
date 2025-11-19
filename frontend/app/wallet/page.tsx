@@ -14,17 +14,28 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
-      <section className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-10">
-        <h1 className="mb-6 text-2xl font-semibold text-zinc-800">My Wallet</h1>
+    <div className="min-h-screen">
+      <section className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Wallet</h1>
+          <p className="text-gray-600">
+            Manage your balance and view transaction history
+          </p>
+        </div>
 
-        <div className="grid gap-6 md:grid-cols-[1fr,400px]">
-          <div key={refreshKey}>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content - Wallet Overview */}
+          <div className="lg:col-span-2 space-y-10">
             <WalletOverview />
           </div>
-          <div>
-            <TopupForm onSuccess={handleTopupSuccess} />
+
+          {/* Sidebar - Top-up Form */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28">
+              <TopupForm onSuccess={handleTopupSuccess} />
+            </div>
           </div>
         </div>
       </section>

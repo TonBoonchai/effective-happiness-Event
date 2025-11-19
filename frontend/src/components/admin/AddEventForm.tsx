@@ -67,6 +67,7 @@ export default function AddEventForm({
         posterPicture: image || undefined,
         price: Number(price) || 0,
       };
+
       const res = await api<{ success: boolean; data: EventItem }>("/events", {
         method: "POST",
         body: JSON.stringify(payload),

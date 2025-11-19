@@ -55,6 +55,7 @@ exports.createEvent = async (req, res) => {
     organizer,
     availableTicket,
     posterPicture,
+    price,
   } = req.body;
   if (dayjs(eventDate).isBefore(dayjs(), "day")) {
     return res
@@ -69,6 +70,7 @@ exports.createEvent = async (req, res) => {
     organizer,
     availableTicket,
     posterPicture,
+    price,
   });
   res.status(201).json({
     success: true,

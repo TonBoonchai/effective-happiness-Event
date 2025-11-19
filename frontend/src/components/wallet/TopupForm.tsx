@@ -101,7 +101,7 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
             </button>
           </div>
 
-          <div className="mb-4 rounded-lg bg-yellow-50 p-3">
+          <div className="mb-6 rounded-lg bg-yellow-50 p-4">
             <p className="text-sm font-medium text-zinc-800">
               Amount: ฿{amount}
             </p>
@@ -120,63 +120,69 @@ export default function TopupForm({ onSuccess }: TopupFormProps) {
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-      <h3 className="mb-4 text-lg font-semibold text-zinc-800">
+      <h2 className="mb-6 text-lg font-semibold text-zinc-800">
         Top Up Wallet
-      </h3>
+      </h2>
 
-      {/* Preset Amount Buttons */}
-      <div className="mb-4">
-        <p className="mb-2 text-sm text-zinc-600">Quick amounts:</p>
-        <div className="grid grid-cols-3 gap-2 md:grid-cols-5">
-          {presetAmounts.map((preset) => (
-            <button
-              key={preset}
-              onClick={() => setAmount(preset.toString())}
-              className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-            >
-              ฿{preset}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Custom Amount Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-6">
+        {/* Preset Amount Buttons */}
         <div>
-          <label className="mb-1 block text-sm text-zinc-700">
-            Custom Amount (THB)
-          </label>
-          <input
-            type="number"
-            min="1"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount..."
-            className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20"
-            required
-          />
+          <p className="mb-3 text-sm text-zinc-600">Quick amounts:</p>
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-5">
+            {presetAmounts.map((preset) => (
+              <button
+                key={preset}
+                onClick={() => setAmount(preset.toString())}
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+              >
+                ฿{preset}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {/* Custom Amount Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-zinc-700">
+              Custom Amount (THB)
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Enter amount..."
+              className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading || !amount || parseFloat(amount) <= 0}
-          className="w-full rounded-xl bg-yellow-700 px-4 py-2 font-semibold text-white hover:bg-yellow-800 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Creating Payment..." : `Proceed to Pay ฿${amount || "0"}`}
-        </button>
-      </form>
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {/* Payment Methods Info */}
-      <div className="mt-4 border-t border-zinc-100 pt-4">
-        <p className="mb-2 text-sm font-medium text-zinc-700">
-          Supported Payment Methods:
-        </p>
-        <div className="flex items-center gap-4 text-sm text-zinc-600">
-          <span className="flex items-center gap-1">💳 Credit/Debit Card</span>
-          <span className="flex items-center gap-1">📱 PromptPay</span>
+          <button
+            type="submit"
+            disabled={loading || !amount || parseFloat(amount) <= 0}
+            className="w-full rounded-lg bg-yellow-500 px-4 py-3 text-sm font-medium text-white hover:bg-yellow-600 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          >
+            {loading
+              ? "Creating Payment..."
+              : `Proceed to Pay ฿${amount || "0"}`}
+          </button>
+        </form>
+
+        {/* Payment Methods Info */}
+        <div className="border-t border-zinc-100 pt-4">
+          <p className="mb-2 text-sm font-medium text-zinc-700">
+            Supported Payment Methods:
+          </p>
+          <div className="flex items-center gap-4 text-sm text-zinc-600">
+            <span className="flex items-center gap-1">
+              💳 Credit/Debit Card
+            </span>
+            <span className="flex items-center gap-1">📱 PromptPay</span>
+          </div>
         </div>
       </div>
     </div>
