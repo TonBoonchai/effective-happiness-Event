@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import PeopleIcon from "@mui/icons-material/People";
 
 export default function BookNow({
   eventId,
@@ -112,36 +113,14 @@ export default function BookNow({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-4">
-        <span className="text-zinc-500">
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        </span>
-        <button
-          onClick={dec}
-          className="h-9 w-9 rounded-full bg-amber-200 text-zinc-700"
-        >
+        <PeopleIcon />
+        <button onClick={dec} className="h-9 w-9 rounded-full bg-[#D9CBB8]/50 ">
           -
         </button>
-        <div className="min-w-16 rounded-lg bg-zinc-100 px-6 py-2 text-center text-lg">
+        <div className="min-w-16 rounded-lg bg-[#D9CBB8]/20 px-6 py-2 text-center text-lg">
           {qty}
         </div>
-        <button
-          onClick={inc}
-          className="h-9 w-9 rounded-full bg-amber-200 text-zinc-700"
-        >
+        <button onClick={inc} className="h-9 w-9 rounded-full bg-[#D9CBB8]/50 ">
           +
         </button>
       </div>
@@ -178,7 +157,7 @@ export default function BookNow({
           (user?.role === "member" && totalPrice > walletBalance)
         }
         onClick={book}
-        className="mt-2 rounded-full bg-yellow-700/80 px-8 py-2 font-semibold text-white hover:bg-yellow-700 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="mt-2 rounded-full bg-[#CAB27A] px-8 py-2 font-semibold text-white hover:bg-[#B69E65] disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loading
           ? "Processing..."
