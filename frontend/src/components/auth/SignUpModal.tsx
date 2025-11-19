@@ -21,9 +21,100 @@ export default function SignUpModal({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  function validateThaiPhoneNumber(phone: string): boolean {
+    // Remove spaces and dashes
+    const cleanPhone = phone.replace(/[\s-]/g, "");
+
+    // Thai phone number patterns:
+    // 1. Domestic format: 0XXXXXXXXX (10 digits starting with 0)
+    // 2. International format: +66XXXXXXXXX (12 chars starting with +66)
+    // 3. International without +: 66XXXXXXXXX (11 digits starting with 66)
+
+    const domesticPattern = /^0[0-9]{9}$/;
+    const internationalPattern = /^\+66[0-9]{9}$/;
+    const internationalWithoutPlusPattern = /^66[0-9]{9}$/;
+
+    return (
+      domesticPattern.test(cleanPhone) ||
+      internationalPattern.test(cleanPhone) ||
+      internationalWithoutPlusPattern.test(cleanPhone)
+    );
+  }
+
+  function validateName(name: string): string | null {
+    if (!name.trim()) {
+      return "Username is required";
+    }
+    if (name.length < 2) {
+      return "Username must be at least 2 characters long";
+    }
+    if (name.length > 50) {
+      return "Username must be less than 50 characters";
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return "Username can only contain letters and spaces";
+    }
+    return null;
+  }
+
+  function validateEmail(email: string): string | null {
+    if (!email.trim()) {
+      return "Email is required";
+    }
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address";
+    }
+    return null;
+  }
+
+  function validatePassword(password: string): string | null {
+    if (!password) {
+      return "Password is required";
+    }
+    return null;
+  }
+
+  function validatePhone(phone: string): string | null {
+    if (!phone.trim()) {
+      return "Phone number is required";
+    }
+    if (!validateThaiPhoneNumber(phone)) {
+      return "Please enter a valid Thai phone number (e.g., 0812345678 or +66812345678)";
+    }
+    return null;
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Validate all fields
+    const nameError = validateName(name);
+    if (nameError) {
+      setError(nameError);
+      return;
+    }
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
+    const phoneError = validatePhone(tel);
+    if (phoneError) {
+      setError(phoneError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
     try {
       await register({ name, tel, email, role, password });
@@ -44,16 +135,18 @@ export default function SignUpModal({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-zinc-700">Tel</label>
+          <label className="text-sm text-zinc-700">Phone Number</label>
           <input
+            type="tel"
             required
             value={tel}
             onChange={(e) => setTel(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            placeholder=""
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
           />
         </div>
         <div className="space-y-1">
@@ -63,7 +156,7 @@ export default function SignUpModal({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
           />
         </div>
         <div className="space-y-1">
@@ -73,7 +166,7 @@ export default function SignUpModal({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
           />
         </div>
         <div className="space-y-1">
@@ -81,7 +174,7 @@ export default function SignUpModal({
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
           >
             <option value="member">member</option>
             <option value="admin">admin</option>
@@ -91,7 +184,7 @@ export default function SignUpModal({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-yellow-700/80 px-4 py-2 font-semibold text-white hover:bg-yellow-700 disabled:opacity-60"
+          className="w-full rounded-full bg-[#CAB27A] px-4 py-2 font-semibold text-white hover:bg-[#B69E65] disabled:opacity-60"
         >
           {loading ? "Signing up…" : "Sign Up"}
         </button>

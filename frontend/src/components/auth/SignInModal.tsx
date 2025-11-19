@@ -42,8 +42,8 @@ export default function SignInModal({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
-            placeholder="you@example.com"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
+            placeholder=""
           />
         </div>
         <div className="space-y-1">
@@ -53,15 +53,15 @@ export default function SignInModal({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
-            placeholder="••••••"
+            className="w-full rounded-xl border border-zinc-100 bg-[#E9DCC9]/10 px-3 py-2 outline-none"
+            placeholder=""
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-yellow-700/80 px-4 py-2 font-semibold text-white hover:bg-yellow-700 disabled:opacity-60"
+          className="w-full rounded-full bg-[#CAB27A] px-4 py-2 font-semibold text-white hover:bg-[#B69E65] disabled:opacity-60"
         >
           {loading ? "Signing in…" : "Sign In"}
         </button>
