@@ -33,6 +33,12 @@ export default function Navbar() {
                 </Link>
               )}
               <Link
+                href="/wallet"
+                className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
+              >
+                Wallet
+              </Link>
+              <Link
                 href="/my-tickets"
                 className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
               >

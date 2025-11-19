@@ -12,20 +12,8 @@ type EventItem = {
   availableTicket?: number;
   posterPicture?: string | null;
   description?: string;
+  price?: number;
 };
-
-function extractPriceFromDescription(desc?: string): {
-  price: string;
-  cleanDescription: string;
-} {
-  if (!desc) return { price: "", cleanDescription: "" };
-
-  const match = desc.match(/^price\s*:\s*([^\n]+)\n\n(.*)$/is);
-  if (match) {
-    return { price: match[1].trim(), cleanDescription: match[2] };
-  }
-  return { price: "", cleanDescription: desc };
-}
 
 export default function EditEventForm({
   event,
@@ -49,11 +37,9 @@ export default function EditEventForm({
     event.eventDate.split("T")[0]
   );
 
-  // Extract price and description
-  const { price: initialPrice, cleanDescription: initialDescription } =
-    extractPriceFromDescription(event.description);
-  const [price, setPrice] = useState<string>(initialPrice);
-  const [description, setDescription] = useState(initialDescription);
+  // Initialize form fields
+  const [price, setPrice] = useState<string>((event.price || 0).toString());
+  const [description, setDescription] = useState(event.description || "");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,12 +84,13 @@ export default function EditEventForm({
     try {
       const payload = {
         name,
-        description: price ? `Price: ${price}\n\n${description}` : description,
+        description,
         eventDate,
         venue,
         organizer: organizer || "Event Organizer",
         availableTicket: Number(availableTicket) || 0,
         posterPicture: image || undefined,
+        price: Number(price) || 0,
       };
 
       console.log("Updating event with payload:", payload);

@@ -15,6 +15,7 @@ async function getEvents(): Promise<EventItem[]> {
         name: e.name,
         venue: e.venue,
         posterPicture: e.posterPicture ?? null,
+        price: e.price,
       })) ?? []
     );
   } catch (e) {
@@ -25,24 +26,28 @@ async function getEvents(): Promise<EventItem[]> {
         name: "Bruno Mars @ Bangkok",
         venue: "Rajamangala National Stadium",
         posterPicture: null,
+        price: 2500,
       },
       {
         _id: "2",
         name: "Bruno Mars @ Bangkok",
         venue: "Rajamangala National Stadium",
         posterPicture: null,
+        price: 2500,
       },
       {
         _id: "3",
         name: "Bruno Mars @ Bangkok",
         venue: "Rajamangala National Stadium",
         posterPicture: null,
+        price: 2500,
       },
       {
         _id: "4",
         name: "Bruno Mars @ Bangkok",
         venue: "Rajamangala National Stadium",
         posterPicture: null,
+        price: 2500,
       },
     ];
   }

@@ -6,6 +6,7 @@ export type EventItem = {
   name: string;
   venue: string;
   posterPicture?: string | null;
+  price?: number;
 };
 
 export default function EventCard({ event }: { event: EventItem }) {
@@ -51,6 +52,11 @@ export default function EventCard({ event }: { event: EventItem }) {
           </svg>
           <span className="truncate">{event.venue}</span>
         </div>
+        {event.price !== undefined && (
+          <div className="mt-1 text-xs font-medium text-yellow-700">
+            ฿{event.price.toLocaleString()}
+          </div>
+        )}
         <div className="mt-3">
           <span className="inline-block rounded-full bg-yellow-700/80 px-4 py-1.5 text-xs font-semibold text-white group-hover:bg-yellow-700">
             View details

@@ -11,6 +11,7 @@ type EventDetail = {
   organizer?: string;
   availableTicket: number;
   posterPicture?: string | null;
+  price?: number;
 };
 
 function getApiBase() {
@@ -28,12 +29,6 @@ async function getEventDetail(id: string): Promise<EventDetail | null> {
   } catch {
     return null;
   }
-}
-
-function extractPrice(desc?: string): string | null {
-  if (!desc) return null;
-  const m = desc.match(/price\s*:\s*([^\n]+)/i);
-  return m ? m[1].trim() : null;
 }
 
 export default async function EventPage({
@@ -74,7 +69,7 @@ export default async function EventPage({
     );
   }
 
-  const price = extractPrice(event.description);
+  const price = event.price;
   const dateText = new Date(event.eventDate).toLocaleDateString();
 
   return (
@@ -170,7 +165,9 @@ export default async function EventPage({
                 </span>
                 <div>
                   <div className="font-medium">Price</div>
-                  <div className="text-zinc-600">{price ?? "—"}</div>
+                  <div className="text-zinc-600">
+                    {price !== undefined ? `฿${price.toLocaleString()}` : "—"}
+                  </div>
                 </div>
               </li>
             </ul>
@@ -180,7 +177,11 @@ export default async function EventPage({
             <h3 className="mb-4 text-xl font-semibold text-zinc-800">
               Book now
             </h3>
-            <BookNow eventId={event._id} available={event.availableTicket} />
+            <BookNow
+              eventId={event._id}
+              available={event.availableTicket}
+              price={event.price}
+            />
           </div>
         </aside>
       </div>

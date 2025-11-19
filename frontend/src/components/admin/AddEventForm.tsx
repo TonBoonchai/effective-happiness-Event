@@ -59,12 +59,13 @@ export default function AddEventForm({
     try {
       const payload = {
         name,
-        description: price ? `Price: ${price}\n\n${description}` : description,
+        description,
         eventDate,
         venue,
         organizer: organizer || "Event Organizer",
         availableTicket: Number(availableTicket) || 0,
         posterPicture: image || undefined,
+        price: Number(price) || 0,
       };
       const res = await api<{ success: boolean; data: EventItem }>("/events", {
         method: "POST",
@@ -184,10 +185,6 @@ export default function AddEventForm({
               placeholder="e.g. 49.00"
               className="w-full rounded-xl border border-zinc-200 bg-amber-50/40 px-3 py-2 outline-none"
             />
-            <p className="mt-1 text-xs text-zinc-500">
-              Note: backend has no price field; value will be prefixed to
-              description.
-            </p>
           </div>
         </div>
         <div>

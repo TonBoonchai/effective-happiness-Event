@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const auth = require("./routes/auth");
 const events = require("./routes/events");
 const ticketing = require("./routes/ticketing");
+const wallet = require("./routes/wallet");
 const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
@@ -35,115 +36,126 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: {
     success: false,
-    error: "Too many requests from this IP, please try again later."
-  }
+    error: "Too many requests from this IP, please try again later.",
+  },
 });
 app.use(limiter);
 
 // Body parsing middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Cookie parser
 app.use(cookieParser());
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // API routes
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/events", events);
 app.use("/api/v1/ticketing", ticketing);
+app.use("/api/v1/wallet", wallet);
 
 // Swagger configuration
 const swaggerOptions = {
   swaggerDefinition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'EventTicketer Event Ticketing System API',
-      version: '1.0.0',
-      description: 'A RESTful API for Event Ticketing System with user authentication and role-based authorization. Supports both admin and member user roles with different access levels.',
+      title: "EventTicketer Event Ticketing System API",
+      version: "1.0.0",
+      description:
+        "A RESTful API for Event Ticketing System with user authentication and role-based authorization. Supports both admin and member user roles with different access levels.",
       contact: {
-        name: 'EventTicketer API Support',
-        email: 'support@eventme.com'
+        name: "EventTicketer API Support",
+        email: "support@eventme.com",
       },
       license: {
-        name: 'ISC',
-        url: 'https://opensource.org/licenses/ISC'
-      }
+        name: "ISC",
+        url: "https://opensource.org/licenses/ISC",
+      },
     },
     servers: [
       {
         url: `http://localhost:${process.env.PORT || 5000}/api/v1`,
-        description: 'Development server'
-      }
+        description: "Development server",
+      },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
     },
     security: [
       {
-        bearerAuth: []
-      }
-    ]
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ['./routes/*.js'],
+  apis: ["./routes/*.js"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'EventTicketer API Documentation'
-}));
+app.use(
+  "/api-docs",
+  swaggerUI.serve,
+  swaggerUI.setup(swaggerDocs, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "EventTicketer API Documentation",
+  })
+);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'EventTicketer API is running',
+    message: "EventTicketer API is running",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || "development",
   });
 });
 
 // Root endpoint
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to EventTicketer Event Ticketing System API',
-    version: '1.0.0',
-    documentation: '/api-docs',
-    health: '/health'
+    message: "Welcome to EventTicketer Event Ticketing System API",
+    version: "1.0.0",
+    documentation: "/api-docs",
+    health: "/health",
   });
 });
 
 // 404 handler for undefined routes
-app.use('*', (req, res) => {
+app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
-    error: `Route ${req.originalUrl} not found`
+    error: `Route ${req.originalUrl} not found`,
   });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
+
   res.status(err.statusCode || 500).json({
     success: false,
-    error: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    error: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 });
 
@@ -152,7 +164,9 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(
   PORT,
   console.log(
-  `EventTicketer API Server running in ${process.env.NODE_ENV || 'development'} mode on http://localhost:${PORT}`
+    `EventTicketer API Server running in ${
+      process.env.NODE_ENV || "development"
+    } mode on http://localhost:${PORT}`
   )
 );
 
